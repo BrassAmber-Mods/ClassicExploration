@@ -38,5 +38,5 @@ Remake of the old zeppelin/airship mod for 1.16.5
 [[dependencies.classicexploration]]
 	modid="geckolib3"
 	mandatory=true
-	ordering="AFTER"
+	ordering="NONE"
 	side="BOTH"
