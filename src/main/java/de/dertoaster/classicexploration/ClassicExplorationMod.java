@@ -1,7 +1,13 @@
-package com.example.examplemod;
+package de.dertoaster.classicexploration;
+
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,19 +19,19 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import software.bernie.geckolib3.GeckoLib;
 
-import java.util.stream.Collectors;
-
-// The value here should match an entry in the META-INF/mods.toml file
-@Mod("examplemod")
-public class ExampleMod
-{
-    // Directly reference a log4j logger.
+@Mod("classicexploration")
+public class ClassicExplorationMod {
+	// Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
+    
+    public static final String MODID = "classicexploration";
 
-    public ExampleMod() {
+    public ClassicExplorationMod() {
+    	//Initialize Geckolib
+    	GeckoLib.initialize();
+    	
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         // Register the enqueueIMC method for modloading
@@ -81,4 +87,8 @@ public class ExampleMod
             LOGGER.info("HELLO from Register Block");
         }
     }
+
+	public static ResourceLocation prefix(String sound) {
+		return new ResourceLocation(MODID, sound);
+	}
 }
