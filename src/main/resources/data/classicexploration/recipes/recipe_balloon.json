@@ -1,0 +1,21 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "lll",
+        "l l",
+        "lll"
+    ],
+    "key":
+    {
+        "l":
+        {
+            "tag": "forge:leather"
+        }
+    },
+    "result":
+    {
+        "item": "classicexploration:balloon",
+        "count": 1
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "sbs",
+        "ede",
+        "scs"
+    ],
+    "key":
+    {
+		"s": {
+			"tag": "forge:string"
+		},
+		"b": {
+			"item": "classicexploration:balloon"
+		},
+		"e": {
+			"item": "classicexploration:engine"
+		},
+		"d": {
+			"item": "minecraft:dispenser"
+		},
+		"c": {
+			"item": "minecraft:boat"
+		}
+    },
+    "result":
+    {
+        "item": "classicexploration:airship_item",
+        "count": 1
+    }
+}

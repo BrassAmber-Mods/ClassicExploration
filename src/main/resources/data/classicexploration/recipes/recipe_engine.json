@@ -1,0 +1,25 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "iii",
+        "ipi",
+        "iii"
+    ],
+    "key":
+    {
+        "i":
+        {
+            "tag":"forge:ingots/iron"
+        },
+        "p":
+        {
+            "item": "minecraft:piston"
+        }
+    },
+    "result":
+    {
+        "item": "classicexploration:engine",
+        "count": 1
+    }
+}
