@@ -32,7 +32,15 @@ description='''
 Remake of the old zeppelin/airship mod for 1.16.5
 '''
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
+[[dependencies.classicexploration]]
+	modid="minecraft"
     versionRange="[1.16.5,1.17)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.classicexploration]]
+    modId="forge"
+    mandatory=true
+    versionRange="[35.1.0,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.classicexploration]]

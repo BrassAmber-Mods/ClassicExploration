@@ -13,7 +13,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 version = "$mcVersion-$modVersion"
-group = 'de.dertoaster.warpwing'
+group = 'de.dertoaster.classicexploration'
 archivesBaseName = "$modName"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
