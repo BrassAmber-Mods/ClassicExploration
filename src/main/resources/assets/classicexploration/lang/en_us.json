@@ -1,0 +1,12 @@
+{
+	"item.classicexploration.tooltip.hold_shift": "Hold shift to see more",
+	
+    "item.classicexploration.balloon": "Airship Balloon",
+    "item.classicexploration.balloon.tooltip": "Crafting component for airships",
+	
+	"item.classicexploration.engine": "Airship Engine",
+    "item.classicexploration.engine.tooltip": "Crafting component for airships",
+	
+	"item.classicexploration.cannon": "Airship Cannon",
+    "item.classicexploration.cannon.tooltip": "Cannon addon for airships"
+}   
