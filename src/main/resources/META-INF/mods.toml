@@ -33,8 +33,9 @@ Remake of the old zeppelin/airship mod for 1.16.5
 '''
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
 [[dependencies.classicexploration]]
-	modid="minecraft"
+    modId="minecraft"
     versionRange="[1.16.5,1.17)"
+	mandatory=true
     ordering="NONE"
     side="BOTH"
 [[dependencies.classicexploration]]
@@ -44,7 +45,8 @@ Remake of the old zeppelin/airship mod for 1.16.5
     ordering="NONE"
     side="BOTH"
 [[dependencies.classicexploration]]
-	modid="geckolib3"
-	mandatory=true
-	ordering="NONE"
-	side="BOTH"
+    modId="geckolib3"
+    mandatory=true
+    ordering="NONE"
+	versionRange="[3.0.39,)"
+    side="BOTH"
