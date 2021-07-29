@@ -13,6 +13,6 @@ public class CEItems {
 	
 	public static final RegistryObject<Item> ITEM_ENGINE = ITEMS.register("engine", () -> new Item(new Properties().tab(ItemGroup.TAB_MISC).stacksTo(64)));
 	public static final RegistryObject<Item> ITEM_BALLOON = ITEMS.register("balloon", () -> new Item(new Properties().tab(ItemGroup.TAB_MISC).stacksTo(64)));
-	public static final RegistryObject<Item> ITEM_CANNON = ITEMS.register("balloon", () -> new Item(new Properties().tab(ItemGroup.TAB_MISC).stacksTo(1)));
+	public static final RegistryObject<Item> ITEM_CANNON = ITEMS.register("cannon", () -> new Item(new Properties().tab(ItemGroup.TAB_MISC).stacksTo(1)));
 	//public static final RegistryObject<Item> ITEM_AIRSHIP = ITEMS.register("airship_engine", () -> new Item(new Properties().tab(ItemGroup.TAB_MISC).stacksTo(64)));
 }
