@@ -1,4 +1,4 @@
-package de.dertoaster.classicexploration.objects.items;
+package de.dertoaster.classicexploration.objects.item;
 
 import java.util.List;
 

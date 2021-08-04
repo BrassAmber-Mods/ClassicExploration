@@ -1,7 +1,7 @@
 package de.dertoaster.classicexploration.init;
 
 import de.dertoaster.classicexploration.ClassicExplorationMod;
-import de.dertoaster.classicexploration.objects.items.ItemLore;
+import de.dertoaster.classicexploration.objects.item.ItemLore;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.Properties;
 import net.minecraft.item.ItemGroup;
