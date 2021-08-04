@@ -1,0 +1,9 @@
+{
+    "entity.airship.propellor": 
+    {
+        "category": "entity",
+        "sounds": [
+			{"name" : "classicexploration:entity/airship/propellor_loop"}
+		]
+    }
+}   
