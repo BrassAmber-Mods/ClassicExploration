@@ -16,11 +16,12 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.play.server.SSpawnObjectPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.TeleportationRepositioner;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 public class EntityAirship extends Entity implements IInventoryChangedListener {
 
@@ -30,15 +31,24 @@ public class EntityAirship extends Entity implements IInventoryChangedListener {
 
 	protected Inventory inventory;
 
+	// TODO: Copy over behavior from EntityBoat
+	private float deltaRotation;
+
+	private boolean inputLeft = false;
+	private boolean inputRight = false;
+	private boolean inputForward = false;
+	private boolean inputBackward = false;
+	private boolean inputAscend = false;
+	private boolean inputDescend = false;
+	
+	private float airshipSpeed = 0.0F;
+
 	private static final DataParameter<Boolean> DATA_ID_HAS_FUEL = EntityDataManager.defineId(EntityAirship.class, DataSerializers.BOOLEAN);
-	private static final DataParameter<Byte> DATA_ID_STEERING_UP_OR_DOWN = EntityDataManager.defineId(EntityAirship.class, DataSerializers.BYTE); 
-	private static final DataParameter<Boolean> DATA_ID_ENGINE_LEFT_ACTIVE = EntityDataManager.defineId(EntityAirship.class, DataSerializers.BOOLEAN);
-	private static final DataParameter<Boolean> DATA_ID_ENGINE_RIGHT_ACTIVE = EntityDataManager.defineId(EntityAirship.class, DataSerializers.BOOLEAN);
 
 	private static final DataParameter<Integer> DATA_ID_EQUIPMENT = EntityDataManager.defineId(EntityAirship.class, DataSerializers.INT);
 
 	private int remainingFuelBurnTime = 0;
-	
+
 	public EntityAirship(EntityType<?> p_i48580_1_, World p_i48580_2_) {
 		super(p_i48580_1_, p_i48580_2_);
 
@@ -62,7 +72,7 @@ public class EntityAirship extends Entity implements IInventoryChangedListener {
 
 	@Override
 	public IPacket<?> getAddEntityPacket() {
-		return new SSpawnObjectPacket(this);
+		return NetworkHooks.getEntitySpawningPacket(this);
 	}
 
 	public boolean canCollideWith(Entity p_241849_1_) {
@@ -149,66 +159,131 @@ public class EntityAirship extends Entity implements IInventoryChangedListener {
 	@Override
 	public void tick() {
 		super.tick();
-		
-		
-		//TODO: Check each engine if it is active, then per engine add to the fuel consumption
-		if(this.getControllingPassenger() == null) {
-			//If we have no pilot, we just fall down slowly
-			
+
+		if (this.level.isClientSide) {
+			// Apply inputs
+			EntityAirshipControl.updateClientControls(this);
+		}
+
+		// DONE: Check each engine if it is active, then per engine add to the fuel consumption
+		if (this.getControllingPassenger() == null) {
+			// If we have no pilot, we just fall down slowly
+
 			return;
 		}
-		
-		if(this.remainingFuelBurnTime > 0) {
-			boolean leftActive = this.entityData.get(DATA_ID_ENGINE_LEFT_ACTIVE);
-			boolean rightActive = this.entityData.get(DATA_ID_ENGINE_RIGHT_ACTIVE);
-			if(!this.entityData.get(DATA_ID_HAS_FUEL)) {
+
+		if (this.remainingFuelBurnTime > 0) {
+			if (!this.entityData.get(DATA_ID_HAS_FUEL)) {
 				this.entityData.set(DATA_ID_HAS_FUEL, true);
 			}
-			if(leftActive) {
+			if (this.inputLeft) {
 				this.remainingFuelBurnTime--;
 			}
-			if(rightActive) {
+			if (this.inputRight) {
 				this.remainingFuelBurnTime--;
 			}
-			if(this.remainingFuelBurnTime <= 0) {
+			if (this.remainingFuelBurnTime <= 0) {
 				this.entityData.set(DATA_ID_HAS_FUEL, false);
 			} else {
-				//TODO: Add in turning behavior and accelleration
-				//Update velocity / direction
-				if(leftActive ^ rightActive) {
-					//If only one is active, the other one breaks. We will turn around the breaking side
-					if(leftActive) {
-						
+				// TODO: Add in turning behavior and accelleration
+				// Update velocity / direction
+				if (this.inputLeft ^ this.inputRight) {
+					// If only one is active, the other one brakes. We will turn around the braking side
+					// DONE: Update rotation
+					if (this.inputLeft) {
+						this.yRot += 0.5F;
 					} else {
-						
+						this.yRot -= 0.5F;
+					}
+					// Now, apply some velocity, but only if we accelerate or decellerate
+				}
+				// Accelerating
+				if (this.inputForward && this.airshipSpeed <= this.getMaxSpeed()) {
+					this.airshipSpeed += 0.05F;
+				}
+				// Decelerating
+				if (this.inputBackward && this.airshipSpeed >= (-0.5F * this.getMaxSpeed())) {
+					this.airshipSpeed -= 0.05F;
+				}
+				
+				double movementVert = 0.0D;
+				if(this.inputAscend ^ this.inputDescend) {
+					if(this.inputAscend) {
+						movementVert = 0.05D;
+					}
+					if(this.inputDescend) {
+						movementVert = -0.05D;
 					}
 				}
-				//Both are active
-				else if(leftActive) {
+				
+				//Now, apply the speed
+				if(this.inputForward || this.inputBackward) {
+					Vector3d newVelocity = Vector3d.directionFromRotation(0.0F, this.yRot);
+					newVelocity = newVelocity.normalize().scale(this.airshipSpeed).add(0, movementVert, 0);
 					
-				}
-				//None are active
-				else {
-					
+					//Now apply to the current velocity
+					this.setDeltaMovement(this.getDeltaMovement().add(newVelocity));
 				}
 			}
-		} 
+		}
 	}
-	
+
+	private float getMaxSpeed() {
+		return 1.0F;
+	}
+
+	private void controlAirship() {
+		if (this.isVehicle()) {
+			float f = 0.0F;
+			if (this.inputLeft) {
+				--this.deltaRotation;
+			}
+
+			if (this.inputRight) {
+				++this.deltaRotation;
+			}
+
+			if (this.inputRight != this.inputLeft && !this.inputForward && !this.inputBackward) {
+				f += 0.005F;
+			}
+
+			this.yRot += this.deltaRotation;
+			if (this.inputForward) {
+				f += 0.04F;
+			}
+
+			if (this.inputBackward) {
+				f -= 0.005F;
+			}
+
+			double dy = 0.0D;
+			if (this.inputAscend) {
+			}
+			if (this.inputDescend) {
+			}
+
+			this.setDeltaMovement(this.getDeltaMovement().add((double) (MathHelper.sin(-this.yRot * ((float) Math.PI / 180F)) * f), dy, (double) (MathHelper.cos(this.yRot * ((float) Math.PI / 180F)) * f)));
+		}
+	}
+
 	protected int getBurnDuration(ItemStack fuel) {
-	      if (fuel.isEmpty()) {
-	         return 0;
-	      } else {
-	         Item item = fuel.getItem();
-	         return net.minecraftforge.common.ForgeHooks.getBurnTime(fuel);
-	      }
-	   }
+		if (fuel.isEmpty()) {
+			return 0;
+		} else {
+			Item item = fuel.getItem();
+			return net.minecraftforge.common.ForgeHooks.getBurnTime(fuel);
+		}
+	}
 
 	@Override
 	public void containerChanged(IInventory p_76316_1_) {
 		// TODO Auto-generated method stub
-		//TODO: Handle if we got new fuel, if yes => Play ignition sound
+		// TODO: Handle if we got new fuel, if yes => Play ignition sound
 
+	}
+
+	public void processControlInputs(boolean[] controlValues) {
+		//TODO: Implement
 	}
 	
 }
