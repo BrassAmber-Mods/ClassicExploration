@@ -1,0 +1,83 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.airship.rotarLeft.rotateClockwise": {
+			"loop": true,
+			"animation_length": 3,
+			"bones": {
+				"rotarLeft": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"3.0": {
+							"vector": [0, 0, 360]
+						}
+					}
+				}
+			}
+		},
+		"animation.airship.rotarRight.rotateClockwise": {
+			"loop": true,
+			"animation_length": 3,
+			"bones": {
+				"rotarRight": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"3.0": {
+							"vector": [0, 0, 360]
+						}
+					}
+				}
+			}
+		},
+		"animation.airship.enginePose.neutral": {
+			"loop": true,
+			"bones": {
+				"engineLeft": {
+					"rotation": {
+						"vector": [0, 0, 0]
+					}
+				},
+				"engineRight": {
+					"rotation": {
+						"vector": [0, 0, 0]
+					}
+				}
+			}
+		},
+		"animation.airship.rotarLeft.enginePose.tiltUp": {
+			"loop": true,
+			"bones": {
+				"engineLeft": {
+					"rotation": {
+						"vector": [-22.5, 0, 0]
+					}
+				},
+				"engineRight": {
+					"rotation": {
+						"vector": [-22.5, 0, 0]
+					}
+				}
+			}
+		},
+		"animation.airship.rotarLeft.enginePose.tiltDown": {
+			"loop": true,
+			"bones": {
+				"engineLeft": {
+					"rotation": {
+						"vector": [22.5, 0, 0]
+					}
+				},
+				"engineRight": {
+					"rotation": {
+						"vector": [22.5, 0, 0]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}
