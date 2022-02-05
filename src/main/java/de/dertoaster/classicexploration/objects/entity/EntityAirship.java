@@ -1,16 +1,18 @@
 package de.dertoaster.classicexploration.objects.entity;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.IInventoryChangedListener;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
@@ -23,7 +25,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public class EntityAirship extends Entity implements IInventoryChangedListener {
+public class EntityAirship extends Entity implements IInventory, INamedContainerProvider {
 
 	enum E_AIRSHIP_EQUIPMENT {
 		NONE, CHEST, CANNON, LAMP
@@ -44,30 +46,35 @@ public class EntityAirship extends Entity implements IInventoryChangedListener {
 	private float airshipSpeed = 0.0F;
 
 	private static final DataParameter<Boolean> DATA_ID_HAS_FUEL = EntityDataManager.defineId(EntityAirship.class, DataSerializers.BOOLEAN);
-
+	
+	private static final DataParameter<Integer> DATA_ID_BALLOON_COLOR = EntityDataManager.defineId(EntityAirship.class, DataSerializers.INT);
 	private static final DataParameter<Integer> DATA_ID_EQUIPMENT = EntityDataManager.defineId(EntityAirship.class, DataSerializers.INT);
 
+	//TODO: SPlitu into fuel engine left and create engine class that stores all engine related things
 	private int remainingFuelBurnTime = 0;
 
 	public EntityAirship(EntityType<?> p_i48580_1_, World p_i48580_2_) {
 		super(p_i48580_1_, p_i48580_2_);
-
-		this.createInventory();
 	}
 
 	@Override
 	protected void defineSynchedData() {
-
+		this.entityData.set(DATA_ID_HAS_FUEL, false);
+		this.entityData.set(DATA_ID_BALLOON_COLOR, DyeColor.WHITE.getColorValue());
+	}
+	
+	public DyeColor getBalloonColor() {
+		return DyeColor.byId(this.entityData.get(DATA_ID_BALLOON_COLOR));
 	}
 
 	@Override
-	protected void readAdditionalSaveData(CompoundNBT p_70037_1_) {
-
+	protected void readAdditionalSaveData(CompoundNBT nbt) {
+		this.entityData.set(DATA_ID_BALLOON_COLOR, nbt.getInt("balloonColor"));
 	}
 
 	@Override
-	protected void addAdditionalSaveData(CompoundNBT p_213281_1_) {
-
+	protected void addAdditionalSaveData(CompoundNBT nbt) {
+		nbt.putInt("balloonColor", this.getBalloonColor().getColorValue());
 	}
 
 	@Override
@@ -106,56 +113,6 @@ public class EntityAirship extends Entity implements IInventoryChangedListener {
 
 	}
 
-	private int getInventorySize() {
-		// TODO: Check for chest attachment
-		// 28 for chest, 2 for cannon, 1 for none
-		return 1;
-	}
-
-	private net.minecraftforge.common.util.LazyOptional<?> itemHandler = null;
-
-	protected void createInventory() {
-		Inventory inventory = this.inventory;
-		this.inventory = new Inventory(this.getInventorySize());
-		if (inventory != null) {
-			inventory.removeListener(this);
-			int i = Math.min(inventory.getContainerSize(), this.inventory.getContainerSize());
-
-			for (int j = 0; j < i; ++j) {
-				ItemStack itemstack = inventory.getItem(j);
-				if (!itemstack.isEmpty()) {
-					this.inventory.setItem(j, itemstack.copy());
-				}
-			}
-		}
-
-		this.inventory.addListener(this);
-		this.updateContainerEquipment();
-		this.itemHandler = net.minecraftforge.common.util.LazyOptional.of(() -> new net.minecraftforge.items.wrapper.InvWrapper(this.inventory));
-	}
-
-	private void updateContainerEquipment() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable net.minecraft.util.Direction facing) {
-		if (this.isAlive() && capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && itemHandler != null)
-			return itemHandler.cast();
-		return super.getCapability(capability, facing);
-	}
-
-	@Override
-	protected void invalidateCaps() {
-		super.invalidateCaps();
-		if (itemHandler != null) {
-			net.minecraftforge.common.util.LazyOptional<?> oldHandler = itemHandler;
-			itemHandler = null;
-			oldHandler.invalidate();
-		}
-	}
-
 	@Override
 	public void tick() {
 		super.tick();
@@ -176,11 +133,14 @@ public class EntityAirship extends Entity implements IInventoryChangedListener {
 			if (!this.entityData.get(DATA_ID_HAS_FUEL)) {
 				this.entityData.set(DATA_ID_HAS_FUEL, true);
 			}
-			if (this.inputLeft) {
-				this.remainingFuelBurnTime--;
-			}
-			if (this.inputRight) {
-				this.remainingFuelBurnTime--;
+			//Consume fuel if the airship burns anything => descelerating or ascelerating and at least one engine is not stopped
+			if(this.inputForward || this.inputBackward && !(this.inputLeft && this.inputRight)) {
+				if (!this.inputLeft) {
+					this.remainingFuelBurnTime--;
+				}
+				if (!this.inputRight) {
+					this.remainingFuelBurnTime--;
+				}
 			}
 			if (this.remainingFuelBurnTime <= 0) {
 				this.entityData.set(DATA_ID_HAS_FUEL, false);
@@ -270,20 +230,90 @@ public class EntityAirship extends Entity implements IInventoryChangedListener {
 		if (fuel.isEmpty()) {
 			return 0;
 		} else {
-			Item item = fuel.getItem();
-			return net.minecraftforge.common.ForgeHooks.getBurnTime(fuel);
+			//Item item = fuel.getItem();
+			return net.minecraftforge.common.ForgeHooks.getBurnTime(fuel, IRecipeType.BLASTING);
 		}
 	}
 
-	@Override
-	public void containerChanged(IInventory p_76316_1_) {
-		// TODO Auto-generated method stub
-		// TODO: Handle if we got new fuel, if yes => Play ignition sound
-
+	public void processControlInputs(boolean[] controlValues) {
+		boolean accelerate = controlValues[0];
+		boolean decelerate = controlValues[3];
+		
+		boolean stopRightEngine = controlValues[2];
+		boolean stopLeftEngine = controlValues[1];
+		
+		boolean ascend = controlValues[4];
+		boolean descend = controlValues[5];
+		
+		this.inputForward= accelerate;
+		this.inputBackward = decelerate;
+		this.inputLeft = stopLeftEngine;
+		this.inputRight = stopRightEngine;
+		this.inputAscend = ascend;
+		this.inputDescend = descend;
 	}
 
-	public void processControlInputs(boolean[] controlValues) {
-		//TODO: Implement
+	//Inventory shit
+	
+	@Override
+	public void clearContent() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Container createMenu(int p_createMenu_1_, PlayerInventory p_createMenu_2_, PlayerEntity p_createMenu_3_) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	// 29 for chest, 3 for cannon, 2 for none (2 fuel slots
+	@Override
+	public int getContainerSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public ItemStack getItem(int p_70301_1_) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ItemStack removeItem(int p_70298_1_, int p_70298_2_) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ItemStack removeItemNoUpdate(int p_70304_1_) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setItem(int p_70299_1_, ItemStack p_70299_2_) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setChanged() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean stillValid(PlayerEntity p_70300_1_) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }
