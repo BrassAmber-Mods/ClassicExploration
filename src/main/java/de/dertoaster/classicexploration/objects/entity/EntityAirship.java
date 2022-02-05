@@ -306,14 +306,16 @@ public class EntityAirship extends Entity implements IInventory, INamedContainer
 
 	@Override
 	public void setChanged() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public boolean stillValid(PlayerEntity p_70300_1_) {
-		// TODO Auto-generated method stub
-		return false;
+		 if (!this.isAlive()) {
+	         return false;
+	      } else {
+	         return !(p_70300_1_.distanceToSqr(this) > 64.0D);
+	      }
 	}
 	
 }
