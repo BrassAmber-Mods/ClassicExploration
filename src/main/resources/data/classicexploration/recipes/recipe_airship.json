@@ -3,7 +3,7 @@
     "pattern":
     [
         "sbs",
-        "ede",
+        "e e",
         "scs"
     ],
     "key":
@@ -17,16 +17,13 @@
 		"e": {
 			"item": "classicexploration:engine"
 		},
-		"d": {
-			"item": "minecraft:dispenser"
-		},
 		"c": {
-			"item": "minecraft:boat"
+			"tag": "boats"
 		}
     },
     "result":
     {
-        "item": "classicexploration:airship_item",
+        "item": "classicexploration:airship",
         "count": 1
     }
 }

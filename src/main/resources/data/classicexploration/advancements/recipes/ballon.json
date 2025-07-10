@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "requirements": [
+    [
+      "has_item"
+    ]
+  ],
+  "criteria": {
+    "has_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "leather"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "classicexploration:recipe_ballon"
+    ]
+  }
+}

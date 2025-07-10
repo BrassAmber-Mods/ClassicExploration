@@ -1,0 +1,45 @@
+{
+  "parent": "minecraft:recipes/root",
+  "requirements": [
+    [
+      "has_item",
+      "has_the_recipe_engine",
+      "has_the_recipe_ballon"
+    ]
+  ],
+  "criteria": {
+    "has_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "classicexploration:engine"
+          },
+          {
+            "item": "classicexploration:ballon"
+          },
+          {
+            "tag": "boats"
+          }
+        ]
+      }
+    },
+    "has_the_recipe_engine": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "classicexploration:recipe_engine"
+      }
+    },
+    "has_the_recipe_ballon": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "classicexploration:recipe_ballon"
+      }
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "classicexploration:recipe_airship"
+    ]
+  }
+}

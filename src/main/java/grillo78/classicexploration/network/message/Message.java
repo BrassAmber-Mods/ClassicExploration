@@ -1,0 +1,14 @@
+package grillo78.classicexploration.network.message;
+
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
+
+public interface Message<T> {
+    void encode(T message, FriendlyByteBuf buffer);
+
+    T decode(FriendlyByteBuf buffer);
+
+    void handle(T message, Supplier<NetworkEvent.Context> supplier);
+}
