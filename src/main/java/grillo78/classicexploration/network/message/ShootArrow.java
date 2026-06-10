@@ -33,7 +33,8 @@ public class ShootArrow implements Message<ShootArrow>{
             if(player.getVehicle() != null && player.getVehicle() instanceof Airship){
                 ItemStack arrowsStack = ((Airship)player.getVehicle()).getItemStackHandler().getStackInSlot(13);
                 if(!arrowsStack.isEmpty() && arrowsStack.getItem() instanceof ArrowItem){
-                    AbstractArrow arrow = ((ArrowItem) arrowsStack.getItem()).createArrow(player.level(), arrowsStack, player);
+                    AbstractArrow arrow = ((ArrowItem) arrowsStack.getItem()).createArrow(player.level(), arrowsStack.copy(), player);
+                    arrowsStack.setCount(arrowsStack.getCount()-1);
                     arrow.shoot(player.getViewVector(0).multiply(2,2,2).x,player.getViewVector(0).multiply(2,2,2).y, player.getViewVector(0).multiply(2,2,2).z, 3.0F, 1.0F);
                     player.level().addFreshEntity(arrow);
                 }

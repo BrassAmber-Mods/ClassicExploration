@@ -1,6 +1,7 @@
 package grillo78.classicexploration.client.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import grillo78.classicexploration.ClassicExploration;
 import grillo78.classicexploration.client.ModModelLayers;
 import grillo78.classicexploration.client.entity.model.AirshipModel;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.joml.Quaternionf;
 
 public class AirshipRenderer extends EntityRenderer<Airship> {
@@ -30,6 +32,15 @@ public class AirshipRenderer extends EntityRenderer<Airship> {
         pPoseStack.pushPose();
         pPoseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(180)));
         pPoseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(pEntity.getViewYRot(pPartialTick))));
+        float f = (float)pEntity.getHurtTime() - pPartialTick;
+        float f1 = pEntity.getDamage() - pPartialTick;
+        if (f1 < 0.0F) {
+            f1 = 0.0F;
+        }
+
+        if (f > 0.0F) {
+            pPoseStack.mulPose(Axis.XP.rotationDegrees(Mth.sin(f) * f * f1 / 10.0F * (float)pEntity.getHurtDir()));
+        }
         pPoseStack.translate(0,-1.5,0);
         model.setupAnim(pEntity, 0,0, pPartialTick, 0,0);
         model.renderToBuffer(pPoseStack, pBuffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(pEntity))), pPackedLight, OverlayTexture.NO_OVERLAY, 1,1,1,1);
