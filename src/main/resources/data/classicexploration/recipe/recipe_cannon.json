@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "iif",
+        "  i",
+        "iil"
+    ],
+    "key": {
+        "i": { "tag": "c:ingots/iron" },
+        "f": { "item": "minecraft:flint_and_steel" },
+        "l": { "tag": "minecraft:logs" }
+    },
+    "result": {
+        "id": "classicexploration:cannon",
+        "count": 1
+    }
+}

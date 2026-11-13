@@ -1,52 +1,35 @@
-# This is an example mods.toml file. It contains the data relating to the loading mods.
-# There are several mandatory fields (#mandatory), and many more that are optional (#optional).
-# The overall format is standard TOML format, v0.5.0.
-# Note that there are a couple of TOML lists in this file.
-# Find more information on toml format here:  https://github.com/toml-lang/toml
-# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
-modLoader="javafml" #mandatory
-loaderVersion="[35,)"
-
+modLoader="javafml"
+loaderVersion="[4,)"
 license="All rights reserved"
-# A URL to refer people to when problems occur with this mod
-#issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
 
-[[mods]] #mandatory
-
-modId="classicexploration" #mandatory
-# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-# ${file.jarVersion} will substitute the value of the Implementation-Version as read from the mod's JAR file metadata
-# see the associated build.gradle script for how to populate this completely automatically during a build
-version="${file.jarVersion}" #mandatory
-
-displayName="Classic Exploration" #mandatory
-
-# A URL for the "homepage" for this mod, displayed in the mod UI
-#displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
-
-logoFile="logo.png" #optional
-
-credits="DerToaster98 - Coding, BrassGeo - Textures & Assets" #optional
-authors="DerToaster98" #optional
+[[mods]]
+modId="classicexploration"
+version="${file.jarVersion}"
+displayName="Classic Exploration"
+logoFile="logo.png"
+credits="DerToaster98 - Coding, BrassGeo - Textures & Assets"
+authors="DerToaster98"
 description='''
-Remake of the old zeppelin/airship mod for 1.16.5
+Remake of the old zeppelin/airship mod, updated for Minecraft 1.21.1 (NeoForge).
 '''
-# This version range declares a minimum of the current minecraft version up to but not including the next major version
+
 [[dependencies.classicexploration]]
     modId="minecraft"
-    versionRange="[1.16.5,1.17)"
-	mandatory=true
+    type="required"
+    versionRange="[1.21.1,1.22)"
     ordering="NONE"
     side="BOTH"
+
 [[dependencies.classicexploration]]
-    modId="forge"
-    mandatory=true
-    versionRange="[35.1.0,)"
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1,)"
     ordering="NONE"
     side="BOTH"
+
 [[dependencies.classicexploration]]
-    modId="geckolib3"
-    mandatory=true
+    modId="geckolib"
+    type="required"
+    versionRange="[4.6,)"
     ordering="NONE"
-	versionRange="[3.0.39,)"
     side="BOTH"

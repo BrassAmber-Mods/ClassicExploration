@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All rights reserved"
+
+[[mods]]
+modId="classicexploration"
+version="${file.jarVersion}"
+displayName="Classic Exploration"
+logoFile="logo.png"
+credits="DerToaster98 - Coding, BrassGeo - Textures & Assets"
+authors="DerToaster98"
+description='''
+Remake of the old zeppelin/airship mod, updated for Minecraft 1.21.1 (NeoForge).
+'''
+
+[[dependencies.classicexploration]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.classicexploration]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.classicexploration]]
+    modId="geckolib"
+    type="required"
+    versionRange="[4.6,)"
+    ordering="NONE"
+    side="BOTH"

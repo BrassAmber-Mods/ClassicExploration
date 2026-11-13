@@ -1,39 +1,19 @@
 package de.dertoaster.classicexploration.init;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
 import de.dertoaster.classicexploration.ClassicExplorationMod;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.sounds.SoundEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class CESounds {
+    public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, ClassicExplorationMod.MODID);
 
-	public static final SoundEvent ENTITY_AIRSHIP_PROPELLOR_LOOP = createEvent("entity.airship.propellor");
-	public static final SoundEvent ENTITY_AIRSHIP_CANNON = createEvent("entity.airship.cannon.shoot");
+    public static final DeferredHolder<SoundEvent, SoundEvent> ENTITY_AIRSHIP_PROPELLOR_LOOP = SOUND_EVENTS.register(
+            "entity.airship.propellor", () -> SoundEvent.createVariableRangeEvent(ClassicExplorationMod.prefix("entity.airship.propellor"))
+    );
 
-	private static SoundEvent createEvent(String sound) {
-		ResourceLocation name = ClassicExplorationMod.prefix(sound);
-		return new SoundEvent(name).setRegistryName(name);
-
-	}
-
-	public static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
-		Field[] allFields = CESounds.class.getDeclaredFields();
-
-		for (Field f : allFields) {
-			if (!Modifier.isPrivate(f.getModifiers())) {
-				try {
-					if (f.get(null) instanceof SoundEvent) {
-						event.getRegistry().register((SoundEvent) f.get(null));
-					}
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+    public static final DeferredHolder<SoundEvent, SoundEvent> ENTITY_AIRSHIP_CANNON = SOUND_EVENTS.register(
+            "entity.airship.cannon.shoot", () -> SoundEvent.createVariableRangeEvent(ClassicExplorationMod.prefix("entity.airship.cannon.shoot"))
+    );
 }

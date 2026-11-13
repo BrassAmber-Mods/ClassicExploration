@@ -2,20 +2,22 @@ package de.dertoaster.classicexploration.init;
 
 import de.dertoaster.classicexploration.ClassicExplorationMod;
 import de.dertoaster.classicexploration.network.packet.CPacketAirshipControls;
+import de.dertoaster.classicexploration.network.packet.CPacketFireAirshipArrow;
+import de.dertoaster.classicexploration.network.packet.CPacketOpenAirshipInventory;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class CEMessages {
-	
-	// Start the IDs at 1 so any unregistered messages (ID 0) throw a more obvious exception when received
-	private static int messageId = 1;
 
-	public static final void registerMessages() {
-		ClassicExplorationMod.NETWORK.registerMessage(
-				messageId++, 
-				CPacketAirshipControls.class, 
-				CPacketAirshipControls::write, 
-				CPacketAirshipControls::read, 
-				CPacketAirshipControls.Handler::handlePacket
-		);
-	}
-	
+    public static void register(IEventBus modEventBus) {
+        modEventBus.addListener(CEMessages::onRegisterPayloadHandlers);
+    }
+
+    private static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar(ClassicExplorationMod.MODID).versioned("1");
+        registrar.playToServer(CPacketAirshipControls.TYPE, CPacketAirshipControls.STREAM_CODEC, CPacketAirshipControls::handle);
+        registrar.playToServer(CPacketOpenAirshipInventory.TYPE, CPacketOpenAirshipInventory.STREAM_CODEC, CPacketOpenAirshipInventory::handle);
+        registrar.playToServer(CPacketFireAirshipArrow.TYPE, CPacketFireAirshipArrow.STREAM_CODEC, CPacketFireAirshipArrow::handle);
+    }
 }

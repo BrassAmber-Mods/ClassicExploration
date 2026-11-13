@@ -1,35 +1,35 @@
 package de.dertoaster.classicexploration.objects.entity;
 
-import de.dertoaster.classicexploration.ClassicExplorationMod;
 import de.dertoaster.classicexploration.network.packet.CPacketAirshipControls;
-import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.client.Options;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class EntityAirshipControl {
-	
-	@OnlyIn(Dist.CLIENT)
-	static void updateClientControls(EntityAirship airship) {
-		// Grab inputs, then create a packet and then send it
-		Minecraft minecraft = Minecraft.getInstance();
-		// IS the minecraft player actually our controlling passenger?
-		if (airship.getControllingPassenger() == minecraft.player) {
-			GameSettings settings = minecraft.options;
 
-			boolean forward = settings.keyUp.isDown();
-			boolean left = settings.keyLeft.isDown();
-			boolean right = settings.keyRight.isDown();
-			boolean backward = settings.keyDown.isDown();
+    @OnlyIn(Dist.CLIENT)
+    static void updateClientControls(EntityAirship airship) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null) return;
 
-			boolean ascend = settings.keyJump.isDown();
-			boolean descend = settings.keySprint.isDown();
+        if (airship.getControllingPassenger() == minecraft.player) {
+            Options options = minecraft.options;
 
-			// Now, construct a packet and send it to the server...
-			// Then, in a different part of the entity, handle the packet and react accordingly
-			CPacketAirshipControls controlPacket = new CPacketAirshipControls(forward, left, right, backward, ascend, descend);
-			ClassicExplorationMod.NETWORK.sendToServer(controlPacket);
-		}
-	}
+            boolean forward = options.keyUp.isDown();
+            boolean left = options.keyLeft.isDown();
+            boolean right = options.keyRight.isDown();
+            boolean backward = options.keyDown.isDown();
+            boolean ascend = options.keyJump.isDown();
+            boolean descend = options.keySprint.isDown();
 
+            // Aplicar localmente para predicción/simulación en cliente (como los barcos)
+            airship.processControlInputs(new boolean[]{forward, left, right, backward, ascend, descend});
+
+            PacketDistributor.sendToServer(new CPacketAirshipControls(
+                    airship.getId(), forward, left, right, backward, ascend, descend
+            ));
+        }
+    }
 }

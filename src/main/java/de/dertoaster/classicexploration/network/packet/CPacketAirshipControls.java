@@ -1,79 +1,54 @@
 package de.dertoaster.classicexploration.network.packet;
 
-import java.util.function.Supplier;
-
+import de.dertoaster.classicexploration.ClassicExplorationMod;
 import de.dertoaster.classicexploration.objects.entity.EntityAirship;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class CPacketAirshipControls {
-	
-	private int airshipId;
-	private boolean controlValues[] = new boolean[6];
+public record CPacketAirshipControls(int airshipId, boolean forward, boolean left, boolean right, boolean backward, boolean ascend, boolean descend) implements CustomPacketPayload {
+    public static final Type<CPacketAirshipControls> TYPE = new Type<>(ClassicExplorationMod.prefix("airship_controls"));
 
-	public CPacketAirshipControls() {
-		
-	}
-	
-	public CPacketAirshipControls(boolean forward, boolean left, boolean right, boolean backward, boolean ascend, boolean descend) {
-		this.controlValues[0] = forward;
-		this.controlValues[1] = left;
-		this.controlValues[2] = right;
-		this.controlValues[3] = backward;
-		this.controlValues[4] = ascend;
-		this.controlValues[5] = descend;
-	}
-	
-	public static CPacketAirshipControls read(PacketBuffer buffer) {
-		CPacketAirshipControls packet = new CPacketAirshipControls();
-		
-		packet.airshipId = buffer.readInt();
-		for(int i = 0; i < packet.controlValues.length; i++) {
-			packet.controlValues[i] = buffer.readBoolean();
-		}
-		
-		return packet;
-	}
-	
-	public static void write(CPacketAirshipControls packet, PacketBuffer buffer) {
-		buffer.writeInt(packet.airshipId);
-		for(int i = 0; i < packet.controlValues.length; i++) {
-			buffer.writeBoolean(packet.controlValues[i]);
-		}
-	}
-	
-	public static class Handler {
-		
-		public Handler() {
-			
-		}
-		
-		public static void handlePacket(CPacketAirshipControls packet, Supplier<NetworkEvent.Context> context) {
-			context.get().enqueueWork(() -> {
-				ServerPlayerEntity sender = context.get().getSender();
-				if(sender != null ) {
-					World level = sender.level;
-					if(level != null) {
-						Entity vehicle = level.getEntity(packet.getAirshipID());
-						if(vehicle instanceof EntityAirship && vehicle != null && vehicle.getControllingPassenger() == (Entity)sender) {
-							((EntityAirship)vehicle).processControlInputs(packet.getControlValues());
-						}
-					}
-				}
-			});
-			context.get().setPacketHandled(true);
-		}
-		
-	}
+    public static final StreamCodec<FriendlyByteBuf, CPacketAirshipControls> STREAM_CODEC = StreamCodec.ofMember(CPacketAirshipControls::write, CPacketAirshipControls::read);
 
-	public int getAirshipID() {
-		return this.airshipId;
-	}
+    public static CPacketAirshipControls read(FriendlyByteBuf buf) {
+        return new CPacketAirshipControls(
+                buf.readInt(),
+                buf.readBoolean(),
+                buf.readBoolean(),
+                buf.readBoolean(),
+                buf.readBoolean(),
+                buf.readBoolean(),
+                buf.readBoolean()
+        );
+    }
 
-	public boolean[] getControlValues() {
-		return this.controlValues;
-	}
+    public void write(FriendlyByteBuf buf) {
+        buf.writeInt(this.airshipId);
+        buf.writeBoolean(this.forward);
+        buf.writeBoolean(this.left);
+        buf.writeBoolean(this.right);
+        buf.writeBoolean(this.backward);
+        buf.writeBoolean(this.ascend);
+        buf.writeBoolean(this.descend);
+    }
+
+    public static void handle(CPacketAirshipControls packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (context.player() instanceof ServerPlayer sender) {
+                Entity vehicle = sender.level().getEntity(packet.airshipId());
+                if (vehicle instanceof EntityAirship airship && sender.getVehicle() == airship) {
+                    airship.processControlInputs(new boolean[]{packet.forward(), packet.left(), packet.right(), packet.backward(), packet.ascend(), packet.descend()});
+                }
+            }
+        });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }
